@@ -8,7 +8,7 @@ import goods from './components/goods/goods';
 import ratings from './components/ratings/ratings';
 import seller from './components/seller/seller';
 
-import './commen/stylus/base.styl'; // 引入全局stylus文件
+import './commen/stylus/index.styl'; // 引入全局stylus文件
 
 Vue.use(VueRouter);
 Vue.use(VueResource); // 全局注册VueResource
