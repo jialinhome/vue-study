@@ -30,7 +30,7 @@
     <div class="background">
       <img v-bind:src="seller.avatar" width="100%">
     </div>
-    <div v-show="detailShow" class="detail">
+    <div v-show="detailShow" class="detail" transition="fade">
       <!-- sticky footers 实现套路-->
       <!-- 需要最小高度撑满屏幕 -->
       <div class="detail-wrapper clearfix">
@@ -57,9 +57,13 @@
             <div class="text">商家公告</div>
             <div class="line"></div>
           </div>
+          <div class="bulletin">
+            <p class="content">{{seller.bulletin}}</p>
+          </div>
         </div>
       </div>
-      <div class="detail-close">
+      <!-- v-on:的缩写是@，既v-on:click可以写成@click -->
+      <div class="detail-close" v-on:click="hideDetail">
         <span class="icon-close"></span>
       </div>
     </div>
@@ -83,6 +87,9 @@
       showDetail () {
         this.detailShow = true;
       },
+      hideDetail () {
+        this.detailShow = false;
+      }
     },
     created () {
       this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
@@ -218,7 +225,14 @@
       width: 100%
       height: 100%
       overflow: auto;
-      background: rgba(7, 17, 27, 0.8)
+      transition: all 0.5s
+      // backdrop-filter: blur(10px)
+      &.fade-transition
+        opacity: 1
+        background: rgba(7, 17, 27, 0.8)
+      &.fade-enter, &.fade-leave
+        opacity: 0
+        background: rgba(7, 17, 27, 0)
       .detail-wrapper
         min-height: 100% // 最小高度与包含其的容器一样高
         width: 100%
@@ -240,7 +254,7 @@
             margin: 28px auto 24px auto
             .line
               flex: 1
-              position: relative // ?????
+              position: relative // 采用relative是由于relative是相对于其自身应该在文档流的位置进行定位
               top: -6px
               border-bottom: 1px solid rgba(255, 255, 255, 0.2)
             .text
@@ -251,7 +265,7 @@
               width: 80%
               margin: 0 auto
               .support-item
-                padding: 0 auto
+                padding: 0 12px
                 margin-bottom: 12px
                 font-size: 0
                 &:last-child
@@ -261,7 +275,7 @@
                   width: 16px
                   height: 16px
                   vertical-align: top
-                  margin: 0 6px 0 12px
+                  margin: 0 6px 0 0
                   background-size: 16px 16px
                   &.decrease
                     bg-image('decrease_2')
@@ -277,6 +291,13 @@
                 .text
                   line-height: 16px
                   font-size: 12px
+          .bulletin
+            width: 80%
+            margin: 0 auto
+            .content
+              padding: 0 12px
+              line-height: 24px
+              font-size: 12px
       .detail-close
         position: relative
         width: 32px
