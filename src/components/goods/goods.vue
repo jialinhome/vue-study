@@ -2,7 +2,7 @@
   <div class="goods">
     <div class="menu-wrapper" v-el:menu-wrapper>
       <ul>
-        <li v-for="item in goods" class="menu-item border-1px">
+        <li v-for="item in goods" class="menu-item border-1px" v-bind:class="{'current': currentIndex===$index}" v-on:click="selectMenu($index,$event)">
           <span class="text">
             <span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
           </span>
@@ -34,10 +34,12 @@
         </li>
       </ul>
     </div>
+    <shopcart></shopcart>
   </div>
 </template>
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll';
+  import shopcart from '../shopcart/shopcart.vue';
 
   const ERR_OK = 0;
 
@@ -51,7 +53,22 @@
       return {
         goods: [],
         listHeight: [],
+        scrollY: 0, // 获得scroll的Y坐标
       };
+    },
+    computed: {
+      currentIndex () { // 当scrollY滚动的时候，currentIndex 会跟着变化
+        for (let i = 0; i < this.listHeight.length; i++) {
+          let height1 = this.listHeight[i];
+          let height2 = this.listHeight[i + 1];
+          // 如果scrollY的值落在第i个li上
+          // !height2 为undefined的时候，说明到了组后一个
+          if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+            return i;
+          }
+        }
+        return 0;
+      }
     },
     created () {
       this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
@@ -68,14 +85,42 @@
       });
     },
     methods: {
-      _initScroll () {
-        this.menuScroll = new BScroll(this.$els.menuWrapper, {});
-        this.foodsScroll = new BScroll(this.$els.foodsWrapper, {});
+      selectMenu (index, event) {
+        // 如果在电脑端浏览器上点击item，会触发两次点击事件，一次是正常的点击事件，一次是better-scroll派发的点击事件，这个是阻止better-scroll派发的那次点击事件
+        if (!event._constructed) {
+          return;
+        }
+        let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
+        let el = foodList[index];
+        this.foodsScroll.scrollToElement(el, 300);
       },
+      // 初始化better-scroll
+      _initScroll () {
+        this.menuScroll = new BScroll(this.$els.menuWrapper, {
+          click: true, // 使scroll里边包含的内容可以点击
+        });
+        this.foodsScroll = new BScroll(this.$els.foodsWrapper, {
+          probeType: 3, // 检测scroll实时滚动的位置
+        });
+        // 给scroll绑定监听事件，计算scrollY的值
+        this.foodsScroll.on('scroll', (pos) => {
+          this.scrollY = Math.abs(Math.round(pos.y));
+        });
+      },
+      // 计算右侧foods的高度,计算每一个li从顶部到父元素顶部的高度
       _caculateHeight () {
         let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
         let height = 0;
+        this.listHeight.push(height);
+        for (let i = 0; i < foodList.length; i++) {
+          let item = foodList[i];
+          height += item.clientHeight;
+          this.listHeight.push(height);
+        }
       },
+    },
+    components: {
+      shopcart,
     },
   };
 </script>
@@ -97,8 +142,16 @@
         display: table
         height: 54px
         width: 56px
-        padding-left: 12px
+        padding:0 12px 0 12px
         line-height: 14px
+        &.current
+          position: relative
+          z-index: 10
+          top: -1px
+          background: #ffffff
+          font-weight: 700
+          .text
+            border-none()
         .text
           display: table-cell
           width: 56px
