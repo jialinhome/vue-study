@@ -28,18 +28,22 @@
                   <span class="now">￥{{food.price}}</span>
                   <span class="old" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
                 </div>
+                <div class="cartcontrol-wrapper">
+                  <cartcontrol :food="food"></cartcontrol>
+                </div>
               </div>
             </li>
           </ul>
         </li>
       </ul>
     </div>
-    <shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.inPrice"></shopcart>
+    <shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
   </div>
 </template>
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll';
   import shopcart from '../shopcart/shopcart.vue';
+  import cartcontrol from '../cartcontrol/cartcontrol.vue';
 
   const ERR_OK = 0;
 
@@ -100,6 +104,7 @@
           click: true, // 使scroll里边包含的内容可以点击
         });
         this.foodsScroll = new BScroll(this.$els.foodsWrapper, {
+          click: true, // 使scroll里边包含的内容可以点击
           probeType: 3, // 检测scroll实时滚动的位置
         });
         // 给scroll绑定监听事件，计算scrollY的值
@@ -121,6 +126,7 @@
     },
     components: {
       shopcart,
+      cartcontrol,
     },
   };
 </script>
@@ -224,6 +230,10 @@
               text-decoration: line-through
               font-size: 10px
               color: rgb(147, 153, 159)
+          .cartcontrol-wrapper
+            position: absolute
+            right: 0
+            bottom: 12px
 
 
 
